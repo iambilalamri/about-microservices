@@ -31,11 +31,11 @@ public class MovieCatalogController {
 	public List<CatalogItem> getCatalog(@PathVariable(value = "id") String userId) {
 
 		// List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new
-		// Rating("5678", 8));
+		// Rating("5678", 8)); ParameterizedTypeReference<ResponseWrapper<T>>(){}
 		UserRating ratings = restTemplate.getForObject("http://localhost:8083/ratingsdata/users/" + userId,
 				UserRating.class);
 		/**
-		 * RESTTEMPLATE TO CALL synchronously EXTERN SERVICE(T
+		 * RESTTEMPLATE TO CALL synchronously EXTERN SERVICE
 		 */
 		return ratings.getUserRatings().stream().map(rating -> {
 			Movie movie = restTemplate.getForObject("http://localhost:8082/movie/" + rating.getMovieId(), Movie.class);
