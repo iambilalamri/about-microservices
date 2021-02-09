@@ -32,18 +32,19 @@ public class MovieCatalogController {
 
 		// List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new
 		// Rating("5678", 8)); ParameterizedTypeReference<ResponseWrapper<T>>(){}
-		UserRating ratings = restTemplate.getForObject("http://localhost:8083/ratingsdata/users/" + userId,
+		UserRating ratings = restTemplate.getForObject("http://ratings-data-service/ratingsdata/users/" + userId,
 				UserRating.class);
 		/**
 		 * RESTTEMPLATE TO CALL synchronously EXTERN SERVICE
 		 */
 		return ratings.getUserRatings().stream().map(rating -> {
-			Movie movie = restTemplate.getForObject("http://localhost:8082/movie/" + rating.getMovieId(), Movie.class);
-			return new CatalogItem(movie.getName(), "description", rating.getRating());
+			Movie movie = restTemplate.getForObject("http://movie-info-service/movie/" + rating.getMovieId(),
+					Movie.class);
+			return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
 		}).collect(Collectors.toList());
 	}
 
-	@GetMapping(value = "/storage/in")
+	// @GetMapping(value = "/storage/in")
 	public List<CatalogItem> getCatalog2(@PathVariable(value = "id") String userId) {
 
 		List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new Rating("5678", 8));

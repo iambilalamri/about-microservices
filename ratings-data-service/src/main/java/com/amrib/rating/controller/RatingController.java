@@ -17,12 +17,12 @@ public class RatingController {
 
 	@GetMapping(value = "/{movieId}")
 	public Rating getRating(@PathVariable(value = "movieId") String movieId) {
-		return new Rating(movieId, 6);
+		return new Rating(movieId, 4);
 	}
 
 	@GetMapping(value = "/users/{userId}")
 	public UserRating getUserRatings(@PathVariable(value = "userId") String userId) {
-		List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new Rating("5678", 8));
+		List<Rating> ratings = Arrays.asList(new Rating("100", 3), new Rating("101", 4));
 		UserRating userRating = new UserRating();
 		userRating.setUserRatings(ratings);
 		return userRating;
