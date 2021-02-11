@@ -1,6 +1,7 @@
 package com.amrib.movinfo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +15,8 @@ import com.amrib.movinfo.models.MovieSummary;
 @RequestMapping(value = "/movie")
 public class MovieController {
 
-//	@Value("${api.key}")
-//	private String apiKey;
+	@Value("${api.key}")
+	private String apiKey;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -23,7 +24,7 @@ public class MovieController {
 	@GetMapping(value = "/{id}")
 	public Movie getMovies(@PathVariable(value = "id") String movieId) {
 		MovieSummary movieSummary = restTemplate.getForObject(
-				"https://api.themoviedb.org/3/movie/" + movieId + "?api_key=f7cf047297104cf1da0d1badb8f03233", MovieSummary.class);
+				"https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey, MovieSummary.class);
 		return new Movie(movieId, movieSummary.getTitle(), movieSummary.getOverview());
 	}
 
