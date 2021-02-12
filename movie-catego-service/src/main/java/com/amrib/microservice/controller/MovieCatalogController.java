@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,39 +30,47 @@ public class MovieCatalogController {
 	private WebClient.Builder webClientbuilder;
 
 	@GetMapping(value = "/{id}")
-	@HystrixCommand
+	@HystrixCommand(fallbackMethod = "getFallbackCatalog")
 	public List<CatalogItem> getCatalog(@PathVariable(value = "id") String userId) {
 
 		// List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new
 		// Rating("5678", 8)); ParameterizedTypeReference<ResponseWrapper<T>>(){}
-		UserRating ratings = restTemplate.getForObject("http://ratings-data-service/ratingsdata/users/" + userId,
-				UserRating.class);
+		UserRating ratings = getUserRating(userId);
 		/**
 		 * RESTTEMPLATE TO CALL synchronously EXTERN SERVICE
 		 */
-		return ratings.getUserRatings().stream().map(rating -> {
-			Movie movie = restTemplate.getForObject("http://movie-info-service/movie/" + rating.getMovieId(),
-					Movie.class);
-			return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
-		}).collect(Collectors.toList());
+		return ratings.getUserRatings().stream().map(rating -> getCatalogItem(ratings)).collect(Collectors.toList());
 	}
 
-	// @GetMapping(value = "/storage/in")
-	public List<CatalogItem> getCatalog2(@PathVariable(value = "id") String userId) {
-
-		List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new Rating("5678", 8));
-
-		/**
-		 * WEBCLIENT TO CALL EXTERN SERVICE
-		 */
-		return ratings.stream().map(rating -> {
-			Movie movie = webClientbuilder.build().get().uri("http://localhost:8082/movie/" + rating.getMovieId())
-					.retrieve().bodyToMono(Movie.class).block();
-			return new CatalogItem(movie.getName(), "description", rating.getRating());
-		}).collect(Collectors.toList());
-
-		// return Collections.singletonList(new CatalogItem("Avengers",
-		// "description",7));
+	public List<CatalogItem> getFallbackCatalog(@PathVariable(value = "id") String userId) {
+		return Arrays.asList(new CatalogItem("No Movie", "", 0))
 	}
+
+	private UserRating getUserRating(@PathVariable(value = "id") String userId) {
+		return restTemplate.getForObject("http://ratings-data-service/ratingsdata/users/" + userId, UserRating.class);
+	}
+
+	private CatalogItem getCatalogItem(Rating rating) {
+		Movie movie = restTemplate.getForObject("http://movie-info-service/movie/" + rating.getMovieId(), Movie.class);
+		return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
+	}
+
+//	// @GetMapping(value = "/storage/in")
+//	public List<CatalogItem> getCatalog2(@PathVariable(value = "id") String userId) {
+//
+//		List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new Rating("5678", 8));
+//
+//		/**
+//		 * WEBCLIENT TO CALL EXTERN SERVICE
+//		 */
+//		return ratings.stream().map(rating -> {
+//			Movie movie = webClientbuilder.build().get().uri("http://localhost:8082/movie/" + rating.getMovieId())
+//					.retrieve().bodyToMono(Movie.class).block();
+//			return new CatalogItem(movie.getName(), "description", rating.getRating());
+//		}).collect(Collectors.toList());
+//
+//		// return Collections.singletonList(new CatalogItem("Avengers",
+//		// "description",7));
+//	}
 
 }
