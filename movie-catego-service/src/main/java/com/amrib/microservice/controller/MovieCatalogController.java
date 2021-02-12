@@ -16,6 +16,7 @@ import com.amrib.microservice.models.CatalogItem;
 import com.amrib.microservice.models.Movie;
 import com.amrib.microservice.models.Rating;
 import com.amrib.microservice.models.UserRating;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
 @RequestMapping(value = "/catalog")
@@ -28,6 +29,7 @@ public class MovieCatalogController {
 	private WebClient.Builder webClientbuilder;
 
 	@GetMapping(value = "/{id}")
+	@HystrixCommand
 	public List<CatalogItem> getCatalog(@PathVariable(value = "id") String userId) {
 
 		// List<Rating> ratings = Arrays.asList(new Rating("1234", 6), new
