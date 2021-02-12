@@ -46,13 +46,22 @@ public class MovieCatalogController {
 		return Arrays.asList(new CatalogItem("No Movie", "", 0))
 	}
 
+	@HystrixCommand(fallbackMethod = "getFallbackUserRating")
 	private UserRating getUserRating(@PathVariable(value = "id") String userId) {
 		return restTemplate.getForObject("http://ratings-data-service/ratingsdata/users/" + userId, UserRating.class);
 	}
+	
+	private UserRating getFallbackUserRating(@PathVariable(value = "id") String userId) {
+		UserRating rating = new UserRating();
+	}
 
+	@HystrixCommand(fallbackMethod = "getFallbackCatalogItem")
 	private CatalogItem getCatalogItem(Rating rating) {
 		Movie movie = restTemplate.getForObject("http://movie-info-service/movie/" + rating.getMovieId(), Movie.class);
 		return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
+	}
+	
+	private CatalogItem getFallbackCatalogItem(Rating rating) {
 	}
 
 //	// @GetMapping(value = "/storage/in")
