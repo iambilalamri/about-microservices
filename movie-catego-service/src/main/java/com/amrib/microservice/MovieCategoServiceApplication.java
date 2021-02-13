@@ -26,7 +26,7 @@ public class MovieCategoServiceApplication {
 		return WebClient.builder();
 	}
 
-	// @LoadBalanced
+	@LoadBalanced
 	@Bean
 	public RestTemplate getRestTemplate(RestTemplateBuilder builder) {
 //		HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
